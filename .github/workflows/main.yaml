@@ -1,0 +1,36 @@
+name: Run
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    - cron: '59 */5 * * *'
+    
+env:
+  SFTP_SERVER: ${{ secrets.SFTP_SERVER }}
+  SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
+  SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+  SFTP_PATH: ${{ secrets.SFTP_PATH }}
+  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  ALLOWED_TELEGRAM_USER_ID: ${{ secrets.ALLOWED_TELEGRAM_USER_ID }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}
+      cancel-in-progress: true
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.10.6
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    - name: Run
+      run: |
+        python main.py
